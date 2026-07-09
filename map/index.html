@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DPI Safeguards — Implementation Map</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* Self-contained brand tokens (subset) so this widget has zero
+       external dependencies beyond Leaflet + fonts. */
+    :root {
+      --dpi-blue-400:#57C4E5; --dpi-blue-500:#1B9CD8; --dpi-blue-600:#1587C0;
+      --dpi-blue-700:#0F6C9C; --dpi-navy:#0E2233; --dpi-ink:#1B2B3A;
+      --dpi-slate:#5C6B7A; --dpi-mist:#F4F7FA; --dpi-cloud:#EAF2F8;
+      --dpi-line:#E2E9F0; --dpi-amber-500:#F2A63B; --dpi-amber-600:#E08E22;
+      --font-head:"Poppins","Segoe UI",system-ui,sans-serif;
+      --font-body:"Inter","Segoe UI",system-ui,sans-serif;
+      --radius-md:14px; --radius-pill:999px;
+      --shadow-sm:0 1px 2px rgba(14,34,51,.06),0 2px 8px rgba(14,34,51,.05);
+    }
+    *,*::before,*::after{box-sizing:border-box}
+    html,body{height:100%;margin:0}
+    body{font-family:var(--font-body);color:var(--dpi-ink);background:#fff;font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+    h2,h3{font-family:var(--font-head);color:var(--dpi-navy);line-height:1.15;margin:0}
+
+    .dpi-eyebrow{font-family:var(--font-head);font-weight:600;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dpi-blue-600)}
+    .dpi-btn{display:inline-flex;align-items:center;gap:.55em;font-family:var(--font-head);font-weight:600;font-size:.9rem;padding:.7em 1.25em;border-radius:var(--radius-pill);border:0;cursor:pointer;text-decoration:none;background:var(--dpi-amber-500);color:var(--dpi-navy)}
+    .dpi-btn:hover{filter:brightness(1.04)}
+    .dpi-btn__dot{display:inline-grid;place-items:center;width:1.6em;height:1.6em;border-radius:50%;background:var(--dpi-navy);color:#fff}
+    .dpi-badge{display:inline-flex;align-items:center;gap:.4em;font-family:var(--font-head);font-weight:600;font-size:.68rem;letter-spacing:.04em;text-transform:uppercase;padding:.3em .7em;border-radius:var(--radius-pill)}
+    .dpi-badge__dot{width:.5em;height:.5em;border-radius:50%;background:currentColor}
+
+    .mapwrap{display:grid;grid-template-columns:1fr 320px;height:100%;min-height:420px;background:#fff}
+    #map{height:100%;width:100%;z-index:1}
+    .leaflet-container{font-family:var(--font-body);background:var(--dpi-cloud)}
+
+    .map-ribbon{position:absolute;top:12px;left:12px;z-index:500;background:rgba(255,255,255,.93);backdrop-filter:blur(6px);border-radius:var(--radius-md);padding:.55rem .85rem;box-shadow:var(--shadow-sm);max-width:290px}
+    .map-ribbon h2{font-size:.95rem;margin:.05rem 0 .05rem}
+    .map-ribbon p{margin:0;font-size:.76rem;color:var(--dpi-slate)}
+    .map-ribbon strong{color:var(--dpi-amber-600)}
+
+    .dpi-pin{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:color-mix(in srgb,var(--pin) 22%,white);border:2px solid var(--pin);box-shadow:0 3px 8px rgba(14,34,51,.25)}
+    .dpi-pin--featured{border-width:3px}
+    .dpi-pin__core{width:9px;height:9px;border-radius:50%;background:var(--pin)}
+    .dpi-pin-wrap:hover .dpi-pin{transform:scale(1.15);transition:transform .12s ease}
+
+    #panel{padding:1.1rem 1.1rem;overflow-y:auto;border-left:1px solid var(--dpi-line);display:flex;flex-direction:column;gap:.5rem}
+    .panel__name{font-size:1.2rem;margin:.05rem 0 0}
+    .panel__headline{font-weight:600;font-size:.9rem;color:var(--dpi-ink);margin:0}
+    .panel__summary{font-size:.82rem;color:var(--dpi-slate);margin:0}
+    .panel__tags{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.2rem}
+    .tag{font-size:.68rem;font-weight:600;font-family:var(--font-head);color:var(--dpi-blue-700);background:var(--dpi-cloud);padding:.26em .65em;border-radius:var(--radius-pill)}
+    .panel__cta{margin-top:.55rem;align-self:flex-start}
+    .panel__stats{display:flex;gap:1.2rem;margin:.35rem 0 .1rem}
+    .pstat{display:flex;flex-direction:column}
+    .pstat__num{font-family:var(--font-head);font-weight:700;font-size:1.45rem;color:var(--dpi-blue-700);line-height:1.1}
+    .pstat__lbl{font-size:.7rem;color:var(--dpi-slate)}
+    .panel__legend{list-style:none;padding:0;margin:.45rem 0 0;display:grid;gap:.4rem}
+    .panel__legend li{display:flex;align-items:center;gap:.5rem;font-size:.78rem;color:var(--dpi-slate)}
+    .legend-dot{width:10px;height:10px;border-radius:50%;flex:none}
+
+    @media (max-width:640px){
+      .mapwrap{grid-template-columns:1fr;grid-template-rows:1fr auto}
+      #panel{max-height:45%;border-left:0;border-top:1px solid var(--dpi-line)}
+      .map-ribbon{max-width:230px}
+    }
+  </style>
+</head>
+<body>
+  <div class="mapwrap">
+    <div style="position:relative;">
+      <div class="map-ribbon">
+        <span class="dpi-eyebrow">Country implementation</span>
+        <h2>Implementation around the world</h2>
+        <p><strong id="stat-count">0</strong> countries engaged &middot; click a pin to explore</p>
+      </div>
+      <div id="map"></div>
+    </div>
+    <aside id="panel"></aside>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
