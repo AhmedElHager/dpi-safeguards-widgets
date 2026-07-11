@@ -145,6 +145,20 @@ window.DPI_RESOURCES = [
     link: 'https://dpisafeguards.gitbook.io/resources-hub/ecosystem-engagement/ecosystem-engagement-1/convening-toolkit'
   },
   {
+    title: "ID4D Practitioner's Guide (World Bank)",
+    type: 'External resource · ID4D',
+    desc: 'In-country assessment processes and templates for identification systems — a practical companion when planning digital ID.',
+    phase: ['L1', 'L2'], authority: ['R1'], topic: ['Digital ID', 'Assessment'],
+    link: 'https://id4d.worldbank.org/guide'
+  },
+  {
+    title: 'ID4Africa — peer learning network',
+    type: 'External resource · Community',
+    desc: 'The identity community for Africa — peer learning and annual convenings for practitioners implementing digital ID.',
+    phase: [], authority: ['R1', 'R5'], topic: ['Digital ID', 'Community'],
+    link: 'https://id4africa.com/'
+  },
+  {
     title: 'Curated Resources',
     type: 'Additional resources',
     desc: 'A curated collection of further reading and reference material.',
