@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DPI Safeguards — Find a Resource</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* Self-contained brand tokens (subset) — no external deps. */
+    :root {
+      --dpi-blue-400:#57C4E5; --dpi-blue-600:#1587C0; --dpi-blue-700:#0F6C9C;
+      --dpi-navy:#0E2233; --dpi-ink:#1B2B3A; --dpi-slate:#5C6B7A;
+      --dpi-mist:#F4F7FA; --dpi-cloud:#EAF2F8; --dpi-line:#E2E9F0;
+      --dpi-amber-600:#E08E22;
+      --font-head:"Poppins","Segoe UI",system-ui,sans-serif;
+      --font-body:"Inter","Segoe UI",system-ui,sans-serif;
+      --radius-sm:8px; --radius-pill:999px;
+    }
+    *,*::before,*::after{box-sizing:border-box}
+    html,body{margin:0}
+    body{font-family:var(--font-body);color:var(--dpi-ink);background:#fff;font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+
+    .finder { padding: .9rem 1rem 1.1rem; }
+
+    .filters { display: grid; grid-template-columns: 1.2fr 1fr 1fr auto; gap: .7rem; margin-bottom: .3rem; }
+    .field label { display: block; font-family: var(--font-head); font-weight: 600; font-size: .72rem; letter-spacing: .04em; text-transform: uppercase; color: var(--dpi-slate); margin-bottom: .35rem; }
+    .field input, .field select {
+      width: 100%; font: inherit; font-size: .88rem; color: var(--dpi-ink);
+      border: 1px solid var(--dpi-line); border-radius: var(--radius-sm);
+      padding: .55rem .7rem; background: #fff;
+    }
+    .field input:focus, .field select:focus { outline: 2px solid var(--dpi-blue-400); outline-offset: -1px; }
+    .reset {
+      align-self: end; font-family: var(--font-head); font-weight: 600; font-size: .82rem;
+      color: var(--dpi-blue-600); background: none; border: 1px solid var(--dpi-line);
+      border-radius: var(--radius-sm); padding: .55rem .9rem; cursor: pointer; white-space: nowrap;
+    }
+    .reset:hover { border-color: var(--dpi-blue-400); }
+
+    .count { font-size: .82rem; color: var(--dpi-slate); margin: .5rem 0; }
+    .count b { color: var(--dpi-navy); }
+
+    /* Scroll internally so no result is ever hidden inside the frame. */
+    .rows { border-top: 1px solid var(--dpi-line); max-height: 430px; overflow-y: auto; }
+    .row {
+      display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: start;
+      padding: .85rem 0; border-bottom: 1px solid var(--dpi-line);
+      text-decoration: none; color: inherit;
+    }
+    .row:hover .row__title { color: var(--dpi-blue-700); }
+    .row__type { font-family: var(--font-head); font-weight: 600; font-size: .7rem; letter-spacing: .04em; text-transform: uppercase; color: var(--dpi-amber-600); }
+    .row__title { font-size: .98rem; font-weight: 600; color: var(--dpi-ink); margin: .15rem 0 .2rem; }
+    .row__desc { font-size: .84rem; color: var(--dpi-slate); margin: 0 0 .4rem; max-width: 62ch; }
+    .row__tags { display: flex; flex-wrap: wrap; gap: .35rem; }
+    .tag { font-size: .7rem; font-weight: 600; font-family: var(--font-head); padding: .16em .55em; border-radius: var(--radius-pill); }
+    .tag--phase { color: var(--dpi-blue-700); background: var(--dpi-cloud); }
+    .tag--auth { color: #8a5a12; background: #FBF0DD; }
+    .tag--topic { color: var(--dpi-slate); background: var(--dpi-mist); border: 1px solid var(--dpi-line); }
+    .row__go { align-self: center; font-family: var(--font-head); font-weight: 600; font-size: .8rem; color: var(--dpi-blue-600); white-space: nowrap; }
+    .row__go::after { content: " \2192"; }
+
+    .empty { padding: 2rem 0; text-align: center; color: var(--dpi-slate); font-size: .9rem; }
+
+    @media (max-width: 760px) {
+      .filters { grid-template-columns: 1fr 1fr; }
+      .reset { grid-column: 1 / -1; }
+      .row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="finder">
+    <div class="filters">
+      <div class="field">
+        <label for="q">Search</label>
+        <input id="q" type="text" placeholder="e.g. digital ID, payments, toolkit…" />
+      </div>
+      <div class="field">
+        <label for="phase">Lifecycle phase</label>
+        <select id="phase"><option value="">Any phase</option></select>
+      </div>
+      <div class="field">
+        <label for="authority">I am a…</label>
+        <select id="authority"><option value="">Any authority</option></select>
+      </div>
+      <button class="reset" id="reset" type="button">Clear filters</button>
+    </div>
+    <p class="count" id="count"></p>
+    <div class="rows" id="rows"></div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
