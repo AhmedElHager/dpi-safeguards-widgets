@@ -23,7 +23,7 @@ window.DPI_RESOURCES = [
     type: 'Key output · v1.0, Sept 2024',
     desc: 'Principles and practices covering the full DPI lifecycle, with an interactive knowledge library.',
     phase: [], authority: [], topic: ['Framework'],
-    link: 'https://dpisafeguards.gitbook.io/resources-hub/about/getting-started/key-outputs/the-universal-dpi-safeguards-framework'
+    link: 'https://dpisafeguards.gitbook.io/resources-hub/framework'
   },
   {
     title: 'A Guide to Building Safe and Inclusive DPI for Societies',
